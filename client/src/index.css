@@ -1,0 +1,21 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@import url("https://fonts.googleapis.com/css2?family=Open+Sans:wght@300;400;500;600;700&family=Poppins:wght@300;400;500;600;700&family=Rubik:wght@300;400;500;600;700&display=swap");
+
+@layer base {
+  html {
+    @apply font-OpenSans;
+  }
+}
+
+@layer components {
+  .inputStyle {
+    @apply mt-2 w-full border-[1px] border-gray-200 rounded-md py-2 px-4 leading-tight outline-none text-sm hover:shadow-sm text-gray-500 font-bold;
+  }
+
+  .hoverEffect {
+    @apply hover:opacity-60;
+  }
+}
