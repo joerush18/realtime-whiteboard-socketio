@@ -1,22 +1,25 @@
-import React, { useRef, useLayoutEffect, useState } from "react";
+import React, { useRef, useLayoutEffect, useState, FormEvent } from "react";
 import { BiUndo, BiRedo } from "react-icons/bi";
 import { toast } from "react-hot-toast";
 
-const Editor = () => {
+type eType =React.MouseEvent<HTMLCanvasElement, MouseEvent>;
+type eForm = React.FormEvent<HTMLInputElement> | any;
+
+const Editor : React.FC = () => {
   const canvasRef = useRef(null);
   const [draw, setDraw] = useState(false);
-  const [c, setC] = useState([]);
+  const [c, setC] = useState<CanvasRenderingContext2D | null>();
   const [brushSize, setBrushSize] = useState(4);
   const [brushColor, setBrushColor] = useState("#000000");
 
   useLayoutEffect(() => {
-    const canvas = document.querySelector("canvas");
-    const canv = canvas.getContext("2d");
+    const canvas = document.querySelector("canvas") ;
+    const canv = canvas && canvas.getContext("2d");
     setC(canv);
   }, []);
 
-  const handleMouseMove = (e) => {
-    if (!draw) return;
+  const handleMouseMove = (e : eType) => {
+    if (!draw || !c) return;
     c.lineWidth = brushSize;
     c.lineCap = "round";
     c.strokeStyle = brushColor;
@@ -24,7 +27,8 @@ const Editor = () => {
     c.stroke();
   };
 
-  const handleMouseDown = (e) => {
+  const handleMouseDown = (e : eType) => {
+    if(!c) return;
     setDraw(true);
     c.lineWidth = brushSize;
     c.lineCap = "round";
@@ -33,23 +37,24 @@ const Editor = () => {
     c.stroke();
   };
   const handleMouseUp = () => {
+    if(!c) return;
     setDraw(false);
     c.beginPath();
   };
 
-  const pickColor = (e) => {
+  const pickColor = ( e : eForm) => {
     setBrushColor(e.target.value);
   };
 
-  const sliderHandler = (e) => {
+  const sliderHandler = (e :eForm ) => {
     setBrushSize(e.target.value);
   };
 
-  const undoChanges = (e) => {
+  const undoChanges = (e : eForm) => {
     e.preventDefault();
     toast.success("Undo done");
   };
-  const redoChanges = (e) => {
+  const redoChanges = (e : eForm) => {
     e.preventDefault();
     toast.success("Redo done");
   };

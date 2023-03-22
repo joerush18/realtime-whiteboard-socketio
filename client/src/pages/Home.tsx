@@ -3,7 +3,7 @@ import toast from "react-hot-toast";
 import { v4 as uuidv4 } from "uuid";
 import { useNavigate } from "react-router-dom";
 
-const Home = () => {
+const Home : React.FC = () => {
   const [roomID, setRoomID] = useState("");
   const [username, setUsername] = useState("");
   const navigate = useNavigate();
