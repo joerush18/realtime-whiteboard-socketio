@@ -4,8 +4,12 @@ import Users from "./Users";
 import { RiRadioButtonLine } from "react-icons/ri";
 import { VscCopy } from "react-icons/vsc";
 import { IoExitOutline } from "react-icons/io5";
-
-const Sidebar = ({ clients, copyRoom, leaveRoom }) => {
+interface SideBarProps {
+  clients? : [];
+  copyRoom : ()=>Promise<void>;
+  leaveRoom : ()=> Promise<void>;
+}
+const Sidebar : React.FC<SideBarProps> = ({ clients, copyRoom, leaveRoom }) => {
   return (
     <div className=" bg-primaryBg w-full  text-white px-4 py-2">
       <div className="flex justify-between">
@@ -26,12 +30,12 @@ const Sidebar = ({ clients, copyRoom, leaveRoom }) => {
       <hr className="bg-white opacity-30" />
       <div className="flex justify-between items-center mt-2">
         <div className="flex items-center space-x-2">
-          <p className="text-md font-bold ">Connected ( {clients.length} )</p>
+          <p className="text-md font-bold "> Connected ( { clients && clients.length} )</p>
           <RiRadioButtonLine className=" text-green-500" />
         </div>
         <div className="flex space-x-2">
-          {clients.map((client) => {
-            return <Users user={client} key={client.socketID} />;
+          {clients && clients.map((client,index) => {
+            return <Users user={client} key={`soecket_${index}`} />;
           })}
         </div>
 
