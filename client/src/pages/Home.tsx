@@ -1,19 +1,29 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import toast from "react-hot-toast";
 import { v4 as uuidv4 } from "uuid";
 import { useNavigate } from "react-router-dom";
+import SocketService from "../services/SocketService";
 
-const Home : React.FC = () => {
+const Home: React.FC = () => {
   const [roomID, setRoomID] = useState("");
   const [username, setUsername] = useState("");
   const navigate = useNavigate();
 
   function newRoomGenerate() {
     const newRoomId = uuidv4();
-    console.log(newRoomId);
     toast.success("Created new room");
     setRoomID(newRoomId);
   }
+
+  const connectSocket = async () => {
+    await SocketService.connect("http://localhost:9000").catch((err) => {
+      console.log(err);
+    });
+  };
+
+  useEffect(() => {
+    connectSocket();
+  }, []);
 
   function joinRoom() {
     if (!roomID && !username) {

@@ -38,26 +38,7 @@ const Sidebar : React.FC<SideBarProps> = ({ clients, copyRoom, leaveRoom }) => {
             return <Users user={client} key={`soecket_${index}`} />;
           })}
         </div>
-
-        {/* {!show ? (
-          <BiChevronDown
-            className="font-bold text-2xl hoverEffect"
-            onClick={() => setShow(!show)}
-          />
-        ) : (
-          <BiChevronUp
-            className="font-bold text-2xl hoverEffect"
-            onClick={() => setShow(!show)}
-          />
-        )} */}
       </div>
-      {/* {show ? (
-        <div className="flex space-x-4 mt-4">
-          {clients.map((client) => {
-            return <Users user={client} key={client.socketid} />;
-          })}
-        </div>
-      ) : null} */}
     </div>
   );
 };
