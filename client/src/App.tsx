@@ -10,10 +10,9 @@ const  App : React.FC = ()=>  {
         <Toaster
           position="top-center"
           toastOptions={{
-            duration: 1000,
+            duration: 1500,
             style: {
-              background: "#363636",
-              color: "white",
+              color: "black",
               fontSize: "14px",
               fontWeight: "bold",
             },
