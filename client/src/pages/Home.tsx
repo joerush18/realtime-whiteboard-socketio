@@ -16,7 +16,7 @@ const Home: React.FC = () => {
   }
 
   const connectSocket = async () => {
-    await SocketService.connect("http://localhost:9000").catch((err) => {
+    await SocketService.connect("https://realtime-whiteboard-socketio-server.onrender.com/").catch((err) => {
       console.log(err);
     });
   };
