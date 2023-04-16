@@ -15,15 +15,15 @@ const EditorPage = () => {
   const username = location?.state?.username;
   const socketRef = useRef(SocketService.socket);
 
-  const checkHasClient = (clients: []) => {
-    if (clients?.length < 1) {
-      reactNavigator("/", {
-        replace: true,
-      });
-    }
-  };
+  // const checkHasClient = (clients?: [] ) => {
+  //   if (clients && clients?.length < 1) {
+  //     reactNavigator("/", {
+  //       replace: true,
+  //     });
+  //   }
+  // };
 
-  const onJoinSocket = async () => {
+  const onJoinRoom = async () => {
     await RoomService.joinRoom(
       socketRef.current as Socket,
       roomID,
@@ -39,7 +39,6 @@ const EditorPage = () => {
         if (uname !== username) {
           toast.success(`${uname} joined.`);
         }
-        checkHasClient(clients);
         setClients(clients);
       })
       .catch((e) => console.log(e));
@@ -47,49 +46,52 @@ const EditorPage = () => {
 
   const leaveRoom = async () => {
     reactNavigator("/");
-    await RoomService.disconnect(
+    await RoomService.leaveRoom(
       socketRef.current as Socket,
       roomID,
       username as string
     ).catch((e) => console.log(e));
+    socketRef.current?.disconnect()
   };
 
-  const onUserDisconnected = async () => {
-    await RoomService.onUserDisconnected(socketRef.current as Socket)
-      .then(({ clients, username, socketID }) => {
-        toast.error(`${username} left.`);
-        checkHasClient(clients);
+  const newUserLeft = async () => {
+    await RoomService.newUserLeft(socketRef.current as Socket)
+      .then(({ clients, username: uname, socketID }) => {
+        if (uname !== username) {
+          toast.success(`${uname} left.`);
+        }
         setClients(clients);
       })
       .catch((e) => console.log(e));
   };
 
-  useEffect(() => {
-    onJoinSocket();
-  }, []);
-
-  useEffect(() => {
-    console.log("render");
-    newUserAdded();
-    onUserDisconnected();
-  }, [clients]);
-
   async function copyRoomId() {
-    try {
-      await navigator.clipboard.writeText(roomID as string);
-      toast.success("Copied to your clipboard");
-    } catch (err) {
-      toast.error("Couldn't copy the Room ID");
-      console.error(err);
+      try {
+        await navigator.clipboard.writeText(roomID as string);
+        toast.success("Copied to your clipboard");
+      } catch (err) {
+        toast.error("Couldn't copy the Room ID");
+        console.error(err);
+      }
     }
-  }
+
+
+  useEffect(() => {
+    onJoinRoom(); 
+    // checkHasClient(clients);
+  }, []);
+  
+  useEffect(() => {
+    newUserAdded();
+    newUserLeft();
+  }, [clients]);
 
   return (
     <div>
       {/* Left Nav */}
       <Sidebar clients={clients} copyRoom={copyRoomId} leaveRoom={leaveRoom} />
       {/* Shareable content */}
-      <Editor />
+      <Editor socketRef={socketRef.current} roomId={roomID} />
     </div>
   );
 };
