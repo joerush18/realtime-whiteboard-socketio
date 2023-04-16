@@ -1,63 +1,73 @@
-import React, { useRef, useLayoutEffect, useState, FormEvent } from "react";
+import React, { useRef, useState, useEffect, } from "react";
 import { BiUndo, BiRedo } from "react-icons/bi";
 import { toast } from "react-hot-toast";
+import CanvasService from "../services/CanvasService";
+import { ReactSketchCanvas } from "react-sketch-canvas";
+import { ReactSketchCanvasRef } from "react-sketch-canvas/dist/ReactSketchCanvas";
 
-type eType =React.MouseEvent<HTMLCanvasElement, MouseEvent>;
+type eType = React.MouseEvent<HTMLCanvasElement, MouseEvent>;
 type eForm = React.FormEvent<HTMLInputElement> | any;
 
-const Editor : React.FC = () => {
-  const canvasRef = useRef(null);
-  const [draw, setDraw] = useState(false);
-  const [c, setC] = useState<CanvasRenderingContext2D | null>();
+interface EditorProps {
+  socketRef: any
+  roomId?: string
+}
+
+
+const styles = {
+  border: '0.0625rem solid #9c9c9c',
+  borderRadius: '0.25rem',
+};
+
+const Editor: React.FC<EditorProps> = ({ socketRef }) => {
+  const canvasRef : React.Ref<ReactSketchCanvasRef> | undefined = useRef(null);
   const [brushSize, setBrushSize] = useState(4);
   const [brushColor, setBrushColor] = useState("#000000");
+  
+  
+  const updateDraw = async () => {
+    await CanvasService.drawUpdate(socketRef).then(({data})=> {
+      canvasRef.current?.loadPaths(data.canvasPath && []);
+      console.log(data);
+    }).catch((e)=> {
+      toast.error(e)
+     })
+    }
+    
+    const onDraw = async () => {
+      const canvasPath = await canvasRef.current?.exportPaths();
+      await CanvasService.draw(socketRef,{
+        canvasPath
+      });
 
-  useLayoutEffect(() => {
-    const canvas = document.querySelector("canvas") ;
-    const canv = canvas && canvas.getContext("2d");
-    setC(canv);
-  }, []);
+    }
+    
+    useEffect(()=> {
+      onDraw()
+      updateDraw();
+    },[]);
 
-  const handleMouseMove = (e : eType) => {
-    if (!draw || !c) return;
-    c.lineWidth = brushSize;
-    c.lineCap = "round";
-    c.strokeStyle = brushColor;
-    c.lineTo(e.clientX, e.clientY - 180);
-    c.stroke();
-  };
-
-  const handleMouseDown = (e : eType) => {
-    if(!c) return;
-    setDraw(true);
-    c.lineWidth = brushSize;
-    c.lineCap = "round";
-    c.strokeStyle = brushColor;
-    c.lineTo(e.clientX, e.clientY - 180);
-    c.stroke();
-  };
-  const handleMouseUp = () => {
-    if(!c) return;
-    setDraw(false);
-    c.beginPath();
-  };
-
-  const pickColor = ( e : eForm) => {
+  const pickColor = (e: eForm) => {
     setBrushColor(e.target.value);
   };
 
-  const sliderHandler = (e :eForm ) => {
+  const sliderHandler = (e: eForm) => {
     setBrushSize(e.target.value);
   };
 
-  const undoChanges = (e : eForm) => {
+  const undoChanges = (e: eForm) => {
     e.preventDefault();
+    canvasRef.current?.undo()
     toast.success("Undo done");
   };
-  const redoChanges = (e : eForm) => {
+  
+  const redoChanges = (e: eForm) => {
     e.preventDefault();
+    canvasRef.current?.redo()
     toast.success("Redo done");
   };
+
+  
 
   return (
     <>
@@ -94,16 +104,16 @@ const Editor : React.FC = () => {
         </div>
       </div>
       <hr />
-      <canvas
-        id="canvas"
-        ref={canvasRef}
-        width={window.innerWidth}
-        height={window.innerHeight - 180}
-        onMouseDown={handleMouseDown}
-        onMouseMove={handleMouseMove}
-        onMouseUp={handleMouseUp}
-        className="cursor-pointer"
-      />
+      <div >
+      <ReactSketchCanvas
+      height="74vh"
+      ref={canvasRef}
+      style={styles}
+      strokeWidth={brushSize}
+      strokeColor={brushColor}
+      onChange={onDraw}
+    />
+      </div>
     </>
   );
 };
